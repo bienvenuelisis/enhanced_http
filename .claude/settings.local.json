@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/D/Professional/Code/Entreprises/OTR/Sources/mobil/packages/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

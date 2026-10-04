@@ -1,6 +1,7 @@
 ## 1.1.0
 
 * Add PATCH support: `patchAndGetCustomResponse`, `patchAndGetJson`, `patchAndParseData`
+* Fix `putAndGetJson` logging the request as POST instead of PUT
 
 ## 1.0.0
 

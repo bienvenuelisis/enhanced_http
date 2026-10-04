@@ -686,7 +686,7 @@ class HttpService implements IHttpService {
 
     headers = await getHeaders(headers);
 
-    await _logRequest('POST', url, headers, body);
+    await _logRequest('PUT', url, headers, body);
 
     final response = await _makeRequestAndHandleClientException(
       () async => _client.put(url, headers: headers, body: jsonEncode(body)),
@@ -694,7 +694,7 @@ class HttpService implements IHttpService {
     );
 
     await _logResponseSuccess(
-      'POST',
+      'PUT',
       url,
       response.statusCode,
       headers,

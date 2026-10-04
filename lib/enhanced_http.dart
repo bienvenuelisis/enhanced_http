@@ -1,7 +1,7 @@
 /// An enhanced HTTP client for Dart and Flutter applications.
 ///
 /// Provides a comprehensive HTTP service with:
-/// - Complete CRUD operations (GET, POST, PUT, DELETE)
+/// - Complete CRUD operations (GET, POST, PUT, PATCH, DELETE)
 /// - Custom HTTP exceptions with status codes
 /// - Request/response interceptors
 /// - CURL logging for debugging

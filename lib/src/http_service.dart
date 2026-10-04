@@ -686,7 +686,7 @@ class HttpService implements IHttpService {
 
     headers = await getHeaders(headers);
 
-    await _logRequest('POST', url, headers, body);
+    await _logRequest('PUT', url, headers, body);
 
     final response = await _makeRequestAndHandleClientException(
       () async => _client.put(url, headers: headers, body: jsonEncode(body)),
@@ -694,7 +694,7 @@ class HttpService implements IHttpService {
     );
 
     await _logResponseSuccess(
-      'POST',
+      'PUT',
       url,
       response.statusCode,
       headers,
@@ -715,6 +715,97 @@ class HttpService implements IHttpService {
     headers = await getHeaders(headers);
 
     final response = await putAndGetCustomResponse(
+      endpoint,
+      body,
+      headers: headers,
+    );
+
+    if (response.statusCode.isSuccessfulHttpStatusCode) {
+      if (dataKey != null) {
+        return fromJson(response.data[dataKey] as Map<String, dynamic>);
+      }
+      // If no dataKey is provided, return the entire response data
+      return fromJson(response.data);
+    } else {
+      throw _handleException(response);
+    }
+  }
+
+  @override
+  Future<CustomHttpResponse> patchAndGetCustomResponse(
+    String endpoint,
+    Map<String, dynamic> body, {
+    Map<String, String>? headers,
+  }) async {
+    final url = _createUri(endpoint);
+
+    headers = await getHeaders(headers);
+
+    await _logRequest('PATCH', url, headers, body);
+
+    final response = await _makeRequestAndHandleClientException(
+      () async => _client.patch(url, headers: headers, body: jsonEncode(body)),
+      url,
+    );
+
+    await _logResponseSuccess(
+      'PATCH',
+      url,
+      response.statusCode,
+      headers,
+      response.body,
+    );
+
+    return (
+      body: response.body,
+      bodyBytes: response.bodyBytes,
+      statusCode: response.statusCode,
+      headers: response.headers,
+      contentLength: response.contentLength,
+      reasonPhrase: response.reasonPhrase,
+      uri: url,
+    );
+  }
+
+  @override
+  Future<Map<String, dynamic>> patchAndGetJson(
+    String endpoint,
+    Map<String, dynamic> body, {
+    Map<String, String>? headers,
+  }) async {
+    final url = _createUri(endpoint);
+
+    headers = await getHeaders(headers);
+
+    await _logRequest('PATCH', url, headers, body);
+
+    final response = await _makeRequestAndHandleClientException(
+      () async => _client.patch(url, headers: headers, body: jsonEncode(body)),
+      url,
+    );
+
+    await _logResponseSuccess(
+      'PATCH',
+      url,
+      response.statusCode,
+      headers,
+      response.body,
+    );
+
+    return _parseResponseToJsonAndHandleExceptions(response);
+  }
+
+  @override
+  Future<T> patchAndParseData<T>(
+    String endpoint,
+    Map<String, dynamic> body,
+    T Function(Map<String, dynamic> p1) fromJson, {
+    String? dataKey,
+    Map<String, String>? headers,
+  }) async {
+    headers = await getHeaders(headers);
+
+    final response = await patchAndGetCustomResponse(
       endpoint,
       body,
       headers: headers,

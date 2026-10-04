@@ -1,3 +1,7 @@
+## 1.1.0
+
+* Add PATCH support: `patchAndGetCustomResponse`, `patchAndGetJson`, `patchAndParseData`
+
 ## 1.0.0
 
 * Initial release

@@ -4,7 +4,7 @@ An enhanced HTTP client for Dart and Flutter applications with comprehensive err
 
 ## Features
 
-- 🚀 **Complete HTTP Client** - GET, POST, PUT, DELETE with response parsing
+- 🚀 **Complete HTTP Client** - GET, POST, PUT, PATCH, DELETE with response parsing
 - 🎯 **Type-Safe Parsing** - Parse responses to custom objects automatically
 - ⚠️ **Rich Error Handling** - Custom HTTP exceptions for all status codes (4xx, 5xx)
 - 🔐 **Auth Interceptors** - Built-in support for authentication token injection
@@ -106,13 +106,20 @@ final users = await httpService.postAndParseDataList(
 );
 ```
 
-### PUT & DELETE Requests
+### PUT, PATCH & DELETE Requests
 
 ```dart
 // PUT request
 final user = await httpService.putAndParseData(
   '/users/1',
   {'name': 'John Updated'},
+  User.fromJson,
+);
+
+// PATCH request (partial update)
+final patched = await httpService.patchAndParseData(
+  '/members/me',
+  {'firstName': 'John'},
   User.fromJson,
 );
 
@@ -311,6 +318,10 @@ abstract class IHttpService {
   // PUT
   Future<Map<String, dynamic>> putAndGetJson(String endpoint, Map<String, dynamic> body);
   Future<T> putAndParseData<T>(String endpoint, Map<String, dynamic> body, T Function(Map<String, dynamic>) fromJson);
+
+  // PATCH
+  Future<Map<String, dynamic>> patchAndGetJson(String endpoint, Map<String, dynamic> body);
+  Future<T> patchAndParseData<T>(String endpoint, Map<String, dynamic> body, T Function(Map<String, dynamic>) fromJson);
 
   // DELETE
   Future<Map<String, dynamic>> deleteAndGetJson(String endpoint);

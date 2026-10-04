@@ -9,7 +9,7 @@ export 'exceptions/custom/socket_http_exception.dart';
 /// An abstract class that defines the contract for an HTTP service.
 ///
 /// This service provides methods for making HTTP requests such as
-/// GET, POST, PUT, and DELETE.
+/// GET, POST, PUT, PATCH, and DELETE.
 /// It also includes methods for handling raw responses and parsing
 /// data into specific types.
 abstract class IHttpService {
@@ -298,6 +298,41 @@ abstract class IHttpService {
     Map<String, dynamic> body,
     T Function(Map<String, dynamic>) fromJson, {
     String? dataKey,
+  });
+
+  /// Sends a PATCH request to the specified [endpoint] with the given [body]
+  /// and returns the raw response.
+  ///
+  /// Returns a `Future` containing a record with the raw response details
+  /// such as body, headers, status code, etc.
+  Future<CustomHttpResponse> patchAndGetCustomResponse(
+    String endpoint,
+    Map<String, dynamic> body, {
+    Map<String, String>? headers,
+  });
+
+  /// Sends a PATCH request to the specified [endpoint] with the given [body]
+  /// and returns the parsed response as a `Map<String, dynamic>`.
+  ///
+  /// Returns a `Future` containing the parsed response data.
+  Future<Map<String, dynamic>> patchAndGetJson(
+    String endpoint,
+    Map<String, dynamic> body, {
+    Map<String, String>? headers,
+  });
+
+  /// Sends a PATCH request to the specified [endpoint] with the given [body]
+  /// and parses the response into an object of type [T].
+  /// The [fromJson] function is used to convert the response data into an
+  /// object of type [T].
+  /// Optionally, [dataKey] can be provided to specify the key for the data
+  /// in the response.
+  Future<T> patchAndParseData<T>(
+    String endpoint,
+    Map<String, dynamic> body,
+    T Function(Map<String, dynamic>) fromJson, {
+    String? dataKey,
+    Map<String, String>? headers,
   });
 }
 

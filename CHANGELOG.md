@@ -1,6 +1,9 @@
 ## Unreleased
 
-* `AuthInterceptor`: optional `onRefreshToken` to refresh an expired token before ending the session; concurrent requests share a single refresh
+* `AuthInterceptor`: optional `onRefreshToken` to refresh an expired token before ending the session; concurrent requests share a single refresh, and requests made from `onRefreshToken` skip the check (no deadlock)
+* `HttpService.getHeaders` now runs `authInterceptor.onRequest()` before every request (it was never called before)
+* `AuthInterceptor` clears the stored token when the session ends, and treats a `getAuthToken` failure as "no token"
+* `putAndParseData` / `patchAndParseData` no longer build the headers twice
 
 ## 1.1.0
 

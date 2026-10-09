@@ -195,31 +195,50 @@ final user = await httpService.getAndParseData(
 
 ### Authentication Interceptor
 
+`AuthInterceptor.onRequest` runs inside `getHeaders`, i.e. before every
+request. If the stored token is expired, it is refreshed with
+`onRefreshToken` before the request is sent (concurrent requests share one
+refresh). If it cannot be refreshed, the token is cleared, `onTokenExpired` is
+called once and the request fails with `UnauthorizedHttpException` without
+being sent.
+
 ```dart
-class MyAuthInterceptor implements IAuthInterceptor {
-  final TokenService tokenService;
+class ApiService extends HttpService {
+  ApiService(this.tokenService)
+      : super(
+          baseUrl: 'https://api.example.com',
+          authInterceptor: AuthInterceptor(
+            tokenService: tokenService,
+            onTokenExpired: () => router.go('/login'),
+            onRefreshToken: (refreshToken) async {
+              // Requests made here (even through this same service) skip the
+              // refresh check. Return null if the session is over.
+              final json = await api.postAndGetJson(
+                '/auth/refresh',
+                {'refreshToken': refreshToken},
+              );
+              return AuthTokenData.fromJson(json);
+            },
+          ),
+        );
 
-  MyAuthInterceptor(this.tokenService);
+  final IAuthTokenService tokenService;
 
   @override
-  Future<void> onRequest() async {
-    // Called before each request
-  }
+  Future<Map<String, String>> getHeaders([
+    Map<String, String>? additionalHeaders,
+  ]) async {
+    // Call super first: it runs the interceptor, which may refresh the token.
+    final headers = await super.getHeaders(additionalHeaders);
 
-  @override
-  Future<void> onError(HttpException error) async {
-    // Handle auth errors (e.g., token expired)
-    if (error is UnauthorizedHttpException) {
-      // Refresh token or logout
+    final token = await tokenService.getAuthToken();
+    if (token != null) {
+      headers['Authorization'] = '${token.type} ${token.token}';
     }
+
+    return headers;
   }
 }
-
-// Use interceptor
-final httpService = HttpService(
-  baseUrl: 'https://api.example.com',
-  authInterceptor: MyAuthInterceptor(tokenService),
-);
 ```
 
 ### Exception Handling

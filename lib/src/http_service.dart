@@ -329,8 +329,10 @@ class HttpService implements IHttpService {
   @override
   Future<Map<String, String>> getHeaders([
     Map<String, String>? additionalHeaders,
-  ]) {
-    return Future.value({...(additionalHeaders ?? {}), ...(headers)});
+  ]) async {
+    await authInterceptor?.onRequest();
+
+    return {...(additionalHeaders ?? {}), ...(headers)};
   }
 
   @override
@@ -712,8 +714,6 @@ class HttpService implements IHttpService {
     String? dataKey,
     Map<String, String>? headers,
   }) async {
-    headers = await getHeaders(headers);
-
     final response = await putAndGetCustomResponse(
       endpoint,
       body,
@@ -803,8 +803,6 @@ class HttpService implements IHttpService {
     String? dataKey,
     Map<String, String>? headers,
   }) async {
-    headers = await getHeaders(headers);
-
     final response = await patchAndGetCustomResponse(
       endpoint,
       body,
@@ -1021,10 +1019,6 @@ class HttpService implements IHttpService {
     Future<http.Response> Function() requestFunc,
     Uri uri,
   ) async {
-    // if (authInterceptor != null) {
-    //   await authInterceptor!.onRequest();
-    // }
-
     try {
       return await requestFunc();
     } on http.ClientException catch (e) {

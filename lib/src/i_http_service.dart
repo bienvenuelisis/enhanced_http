@@ -127,6 +127,12 @@ abstract class IHttpService {
   /// authentication tokens, content types, or other metadata required
   /// for making HTTP requests.
   ///
+  /// Every request calls this method right before it is sent, so it is also
+  /// where the auth interceptor's `onRequest` runs (e.g. to refresh an
+  /// expired token). Overrides that add an `Authorization` header must call
+  /// `super.getHeaders` first, then read the token, so they pick up a
+  /// refreshed one.
+  ///
   /// Returns:
   /// - A `Future` that resolves to a `Map<String, String>` containing
   ///   the HTTP headers.

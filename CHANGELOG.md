@@ -1,3 +1,7 @@
+## Unreleased
+
+* `AuthInterceptor`: optional `onRefreshToken` to refresh an expired token before ending the session; concurrent requests share a single refresh
+
 ## 1.1.0
 
 * Add PATCH support: `patchAndGetCustomResponse`, `patchAndGetJson`, `patchAndParseData`

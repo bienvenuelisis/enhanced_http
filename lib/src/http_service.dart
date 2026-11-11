@@ -28,6 +28,7 @@ class HttpService implements IHttpService {
     Map<String, String>? headers,
     ILogger? logger,
     this.curlLogger = const HttpCurlLogger(),
+    this.allowBadCertificates = false,
   }) : logger = logger ?? ConsoleLogger(debugPrint, prefix: 'HttpService: ') {
     _client = _createIoClient();
 
@@ -39,6 +40,13 @@ class HttpService implements IHttpService {
   final IAuthInterceptor? authInterceptor;
   final HttpCurlLogger curlLogger;
   final ILogger logger;
+
+  /// Accept TLS certificates that fail validation (self-signed, expired,
+  /// wrong host), e.g. to reach a local development server.
+  ///
+  /// Ignored in release builds: certificates are always validated there.
+  /// Never enable this against a production server.
+  final bool allowBadCertificates;
 
   @override
   final String baseUrl;
@@ -857,9 +865,32 @@ class HttpService implements IHttpService {
     );
   }
 
+  /// Whether untrusted certificates may be accepted: only when
+  /// [allowBadCertificates] is requested and this is not a release build.
+  @visibleForTesting
+  static bool acceptsBadCertificates({
+    required bool allowBadCertificates,
+    bool releaseMode = kReleaseMode,
+  }) {
+    return allowBadCertificates && !releaseMode;
+  }
+
   IOClient _createIoClient() {
-    final httpClient = HttpClient()
-      ..badCertificateCallback = ((cert, host, port) => true);
+    final httpClient = HttpClient();
+
+    if (acceptsBadCertificates(allowBadCertificates: allowBadCertificates)) {
+      logger.error(
+        '⚠️  TLS certificate validation disabled (allowBadCertificates). '
+        'Development only.',
+      );
+
+      httpClient.badCertificateCallback = (cert, host, port) => true;
+    } else if (allowBadCertificates) {
+      logger.error(
+        'allowBadCertificates is ignored in release builds: '
+        'TLS certificates are validated.',
+      );
+    }
 
     return IOClient(httpClient);
   }

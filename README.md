@@ -358,9 +358,14 @@ class HttpService implements IHttpService {
     Map<String, String>? headers,
     ILogger? logger,
     HttpCurlLogger curlLogger = const HttpCurlLogger(),
+    bool allowBadCertificates = false,
   });
 }
 ```
+
+TLS certificates are always validated. To reach a local development server
+with a self-signed certificate, pass `allowBadCertificates: true`. It is
+ignored in release builds, so it can never weaken a shipped app.
 
 ## Testing
 

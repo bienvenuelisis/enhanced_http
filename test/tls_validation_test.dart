@@ -85,7 +85,10 @@ void main() {
     );
   });
 
-  tearDown(() => server.close(force: true));
+  tearDown(() async {
+    GlobalSslConfig.restore();
+    await server.close(force: true);
+  });
 
   test('rejects a server with an untrusted certificate', () async {
     final http = HttpService(
@@ -133,6 +136,36 @@ void main() {
         releaseMode: false,
       ),
       isFalse,
+    );
+  });
+
+  test('GlobalSslConfig.configure() with no argument changes nothing', () async {
+    GlobalSslConfig.configure();
+
+    expect(HttpOverrides.current, isNull);
+    await expectLater(
+      HttpService(
+        baseUrl: 'https://127.0.0.1:${server.port}',
+      ).getJson('/x'),
+      throwsA(isA<HandshakeException>()),
+    );
+    expect(received, isEmpty);
+  });
+
+  test('GlobalSslConfig.configure(true) works in debug builds', () async {
+    GlobalSslConfig.configure(true);
+
+    final response = await HttpService(
+      baseUrl: 'https://127.0.0.1:${server.port}',
+    ).getJson('/dev');
+    expect(response['forged'], true);
+
+    GlobalSslConfig.restore();
+    await expectLater(
+      HttpService(
+        baseUrl: 'https://127.0.0.1:${server.port}',
+      ).getJson('/after-restore'),
+      throwsA(isA<HandshakeException>()),
     );
   });
 }

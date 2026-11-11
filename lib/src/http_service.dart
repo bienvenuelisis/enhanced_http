@@ -867,7 +867,7 @@ class HttpService implements IHttpService {
 
   /// Whether untrusted certificates may be accepted: only when
   /// [allowBadCertificates] is requested and this is not a release build.
-  @visibleForTesting
+  /// Shared with `GlobalSslConfig`; [releaseMode] is overridable for tests.
   static bool acceptsBadCertificates({
     required bool allowBadCertificates,
     bool releaseMode = kReleaseMode,

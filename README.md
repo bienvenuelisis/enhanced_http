@@ -367,6 +367,10 @@ TLS certificates are always validated. To reach a local development server
 with a self-signed certificate, pass `allowBadCertificates: true`. It is
 ignored in release builds, so it can never weaken a shipped app.
 
+`GlobalSslConfig.configure(true)` does the same for every `HttpClient` in the
+app (development only, also ignored in release builds). Calling it with no
+argument does nothing.
+
 ## Testing
 
 Mock the `IHttpService` interface for easy testing:
